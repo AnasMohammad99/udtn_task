@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { DatabaseModule } from './database/database.module';
 import { JwtAuthGuard } from './jwtAuthGuard';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { JwtAuthGuard } from './jwtAuthGuard';
       },
     }),
     DatabaseModule,
+    AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [JwtAuthGuard, AppService],
