@@ -13,7 +13,7 @@ import { ProductService } from './product.service';
 import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
 import { JwtAuthGuard } from 'src/jwtAuthGuard';
 import { RoleGuard } from 'src/roleAuthGuard';
-@UseGuards(JwtAuthGuard, RoleGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('product')
 export class ProductController {
   constructor(private productService: ProductService) {}
@@ -36,6 +36,7 @@ export class ProductController {
     return this.productService.getProductById(+product_id);
   }
   //add product
+  @UseGuards(RoleGuard)
   @Post()
   addProduct(@Body() dto: CreateProductDto) {
     return this.productService.addProduct(dto);
@@ -46,6 +47,7 @@ export class ProductController {
   //   return this.productService.addProductList(dto);
   // }
   //update product by id
+  @UseGuards(RoleGuard)
   @Patch('/:product_id')
   updateProduct(
     @Body() dto: UpdateProductDto,
@@ -54,11 +56,13 @@ export class ProductController {
     return this.productService.updateProduct(dto, +product_id);
   }
   //delete product by id
+  @UseGuards(RoleGuard)
   @Delete('/:product_id')
   deleteProductById(@Param('product_id') product_id: string) {
     return this.productService.deleteProductById(+product_id);
   }
   //delete all products
+  @UseGuards(RoleGuard)
   @Delete()
   deleteAllProducts() {
     return this.productService.deleteAllProducts();
