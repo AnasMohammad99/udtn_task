@@ -32,6 +32,12 @@ Change `<postgres-password>` to `you psotgresql server password`
  http://localhost:5000
 ```
 
+#### swagger documentation uri
+
+```http
+ http://localhost:5000/api
+```
+
 ## auth routes
 
 #### Register new user
