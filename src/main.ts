@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { setupSwagger } from 'swagger.config';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -15,15 +15,7 @@ async function bootstrap() {
     }),
   );
   //----------------------------------------------
-  app.setGlobalPrefix('api');
-
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('NestJS Tutorial')
-    .setDescription('This is a blog series tutorial.')
-    .setVersion('1.0')
-    .build();
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api', app, document);
+  setupSwagger(app);
 
   //----------------------------------------------
   await app.listen(process.env.PORT || 5000);

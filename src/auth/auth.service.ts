@@ -20,7 +20,7 @@ export class AuthService {
     private jwtService: JwtService,
     private database: DatabaseService,
     private mailerService: MailerService,
-  ) {}
+  ) { }
   async validateUser(username: string, password: string) {
     try {
       const user = await this.database.user.findFirst({
@@ -59,6 +59,11 @@ export class AuthService {
       throw new HttpException('user already exist', HttpStatus.BAD_REQUEST);
     }
     const saltOrRounds = 10;
+    if (dto.role === 1) {
+      dto.role = 'USER'
+    } else if (dto.role === 2) {
+      dto.role = 'MODERATOR'
+    }
     dto.password = await bcrypt.hash(dto.password, saltOrRounds);
     const user = await this.database.user.create({
       data: {
@@ -80,7 +85,6 @@ export class AuthService {
     };
   }
   async login(user: any): Promise<any> {
-    // console.log(user);
     try {
       const token = await this.database.token.create({
         data: {
@@ -88,8 +92,6 @@ export class AuthService {
           expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
         },
       });
-      // console.log(token);
-
       delete user.password;
       return {
         message: 'logged in successfully',
@@ -99,18 +101,16 @@ export class AuthService {
         }),
       };
     } catch (error) {
-      if (user.role === 'SUPER_ADMIN') {
-        handleError(error, `admin already logged in`);
-      } else {
-        const loggedUser = await this.database.user.findUnique({
-          where: {
-            id: +user.id,
-          },
-        });
-        // console.log(user);
 
-        handleError(error, `${loggedUser.username} already logged in`);
-      }
+      const loggedUser = await this.database.user.findUnique({
+        where: {
+          id: +user.id,
+        },
+      });
+      // console.log(user);
+
+      handleError(error, `${loggedUser.username} already logged in`);
+
       // throw new HttpException(error, HttpStatus.BAD_REQUEST);
     }
   }
