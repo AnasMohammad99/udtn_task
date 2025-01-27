@@ -37,7 +37,7 @@ Change `<postgres-password>` to `you psotgresql server password`
 #### Register new user
 
 ```http
-  POST /auth/admin/register
+  POST /auth/client/register
 ```
 
 | Body Parameter | Type     | Description                                                                |
