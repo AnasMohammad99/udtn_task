@@ -6,7 +6,7 @@ import { handleError } from 'src/exceptions/errors-handler';
 
 @Injectable()
 export class UserService {
-  constructor(private database: DatabaseService) {}
+  constructor(private database: DatabaseService) { }
   async getAllUsers() {
     try {
       const users = await this.database.user.findMany({});
@@ -32,6 +32,11 @@ export class UserService {
         throw new HttpException('user already exist', HttpStatus.BAD_REQUEST);
       }
       const saltOrRounds = 10;
+      if (dto.role === 1) {
+        dto.role = 'USER'
+      } else if (dto.role === 2) {
+        dto.role = 'MODERATOR'
+      }
       dto.password = await bcrypt.hash(dto.password, saltOrRounds);
       const user = await this.database.user.create({
         data: {
@@ -59,6 +64,11 @@ export class UserService {
     }
   }
   async updateUser(dto: UpdateUserDto, user_id: number) {
+    if (dto.role === 1) {
+      dto.role = 'USER'
+    } else if (dto.role === 2) {
+      dto.role = 'MODERATOR'
+    }
     try {
       const updatedUser = await this.database.user.update({
         where: {
