@@ -21,10 +21,10 @@ export class AuthService {
     private database: DatabaseService,
     private mailerService: MailerService,
   ) { }
-  async validateUser(username: string, password: string) {
+  async validateUser(email: string, password: string) {
     try {
       const user = await this.database.user.findFirst({
-        where: { username },
+        where: { email },
       });
       if (user) {
         const isMatch = await bcrypt.compare(password, user.password);
@@ -52,11 +52,11 @@ export class AuthService {
   async clientRegister(dto: CreateUserDto) {
     const userExist = await this.database.user.findFirst({
       where: {
-        username: dto.username,
+        email: dto.email,
       },
     });
     if (userExist) {
-      throw new HttpException('user already exist', HttpStatus.BAD_REQUEST);
+      throw new HttpException('user already exists', HttpStatus.BAD_REQUEST);
     }
     const saltOrRounds = 10;
     if (dto.role === 1) {
@@ -85,6 +85,7 @@ export class AuthService {
     };
   }
   async login(user: any): Promise<any> {
+
     try {
       const token = await this.database.token.create({
         data: {
@@ -100,18 +101,18 @@ export class AuthService {
           user: { user_id: user.id, token_id: token.id, role: user.role },
         }),
       };
-    } catch (error) {
 
+    } catch (error) {
       const loggedUser = await this.database.user.findUnique({
         where: {
           id: +user.id,
         },
       });
-      // console.log(user);
-
-      handleError(error, `${loggedUser.username} already logged in`);
-
-      // throw new HttpException(error, HttpStatus.BAD_REQUEST);
+      if (loggedUser) {
+        throw new HttpException(`${loggedUser.username} already logged in`, HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException('Invalid email or password', HttpStatus.UNAUTHORIZED);
+      }
     }
   }
   async logout(user: any) {
@@ -126,7 +127,7 @@ export class AuthService {
 
       return { message: 'logged out successfully' };
     } catch (err) {
-      throw new HttpException(err, HttpStatus.BAD_REQUEST);
+      throw new HttpException(err, HttpStatus.UNAUTHORIZED);
     }
   }
   async verifyEmail(verifyEmail: verifyEmailDto) {
